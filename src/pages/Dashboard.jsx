@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useArticles } from "../hooks/ArticleProvider";
 const Dashboard = () => {
-  const {articles, authors} = useArticles()
+  const {articles, authors, categories} = useArticles()
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex">
@@ -47,7 +47,7 @@ const Dashboard = () => {
               <div className="bg-purple-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-purple-800 mb-2">Catégories</h3>
                 <p className="text-3xl font-bold text-purple-600">
-                  {new Set(articles.map(a => a.category)).size}
+                  {categories.length}
                 </p>
               </div>
             </div>
