@@ -10,7 +10,7 @@ const ArticleCard = ({ article }) => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-            {article.category}
+            {article.category.name}
           </span>
           <span className="text-sm text-gray-500">{article.readTime}</span>
         </div>

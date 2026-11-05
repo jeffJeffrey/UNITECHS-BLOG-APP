@@ -6,7 +6,7 @@ const CategoryPage = () => {
   const { articles } = useArticles();
   const { name } = useParams();
   const categoryArticles = articles.filter(
-    (article) => article.category.toLowerCase() === name.toLowerCase()
+    (article) => article.category.name.toLowerCase() === name.toLowerCase()
   );
 
   if (categoryArticles.length === 0) {

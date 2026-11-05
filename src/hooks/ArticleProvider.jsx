@@ -31,8 +31,11 @@ export const ArticleProvider = ({ children }) => {
 
 
   // CRUD Articles
-  const addArticle =  async (article) => {
-    const res = await api.post("/articles", article)
+  const addArticle =  async (articleData) => {
+    const config = articleData instanceof FormData 
+      ? { headers: { 'Content-Type': undefined } } 
+      : {};
+    const res = await api.post("/articles", articleData, config);
     setArticles((prevItems) => [...prevItems, res.data.data || res.data]);
   };
 
@@ -42,8 +45,11 @@ export const ArticleProvider = ({ children }) => {
 
   };
 
-  const updateArticle = async (id, article) => {
-    const res = await api.put(`/articles/${id}`, article)
+  const updateArticle = async (id, articleData) => {
+    const config = articleData instanceof FormData 
+      ? { headers: { 'Content-Type': undefined } } 
+      : {};
+    const res = await api.put(`/articles/${id}`, articleData, config);
     setArticles((prevItems) => prevItems.map((item) => item.id === id ? res.data.data || res.data : item))
   };
 

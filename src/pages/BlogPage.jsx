@@ -10,7 +10,7 @@ const BlogPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const articlesPerPage = 4;
 
-  const categories = [...new Set(articles.map(article => article.category))];
+  const categories = [...new Set(articles.map(article => article.category.name))];
   const searchTerm = searchParams.get('q') || '';
 
   // Filtrage des articles
@@ -19,7 +19,7 @@ const BlogPage = () => {
 
     // Filtrage par catégorie
     if (selectedCategory) {
-      filtered = filtered.filter(article => article.category === selectedCategory);
+      filtered = filtered.filter(article => article.category.name === selectedCategory);
     }
 
     // Filtrage par recherche

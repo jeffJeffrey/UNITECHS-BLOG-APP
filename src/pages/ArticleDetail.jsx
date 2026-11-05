@@ -14,7 +14,7 @@ const ArticleDetail = () => {
   }
 
   const relatedArticles = articles
-    .filter((a) => a.category === article.category && a.id !== article.id)
+    .filter((a) => a.category.name === article.category.name && a.id !== article.id)
     .slice(0, 3);
 
   return (
@@ -43,7 +43,7 @@ const ArticleDetail = () => {
         <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full">
-              {article.category}
+              {article.category.name}
             </span>
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <span>{article.readTime}</span>

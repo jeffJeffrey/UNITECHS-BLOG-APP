@@ -1,40 +1,47 @@
 import { Link } from "react-router-dom";
 import { useArticles } from "../hooks/ArticleProvider";
 import { useState } from "react";
+
 const DashboardPosts = () => {
-  const { articles, addArticle, deleteArticle, updateArticle, authors } = useArticles();
+  const { articles, addArticle, categories, deleteArticle, updateArticle, authors } = useArticles();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
     title: "",
-    category: "",
+    category_id: "",
     content: "",
     slug: "",
     date: "",
+    image: null,
+    author_id: "",
   });
   const [editId, setEditId] = useState(null);
 
   const handleOpenCreate = () => {
     setForm({
       title: "",
-      category: "",
+      category_id: "",
       content: "",
       slug: "",
       date: new Date().toISOString().slice(0, 10),
+      image: null,
+      author_id: "",
     });
     setEditMode(false);
     setModalOpen(true);
     setEditId(null);
-  };updateArticle
+  };
 
   const handleOpenEdit = (article) => {
     setForm({
       title: article.title,
-      category: article.category,
+      category_id: article.category.id,
       content: article.content,
       slug: article.slug,
       date: article.date,
+      image: null,
+      author_id: article.author_id,
     });
     setEditMode(true);
     setModalOpen(true);
@@ -48,32 +55,51 @@ const DashboardPosts = () => {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === "image") {
+      setForm({ ...form, image: e.target.files[0] });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (editMode) {
-      updateArticle(editId, {
-        ...articles.find(a => a.id === editId),
-        ...form,
-      });
+      const slug = form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+      if (form.image) {
+        // Nouvelle image : utiliser FormData
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("content", form.content);
+        formData.append("slug", slug);
+        formData.append("author_id", form.author_id);
+        formData.append("category_id", form.category_id);
+        formData.append("image", form.image);
+        await updateArticle(editId, formData);
+      } else {
+        // Pas de nouvelle image : JSON sans image
+        await updateArticle(editId, {
+          title: form.title,
+          content: form.content,
+          slug: slug,
+          author_id: form.author_id,
+          category_id: form.category_id,
+        });
+      }
     } else {
-      // Random author and image
+      // Création
       const randomAuthor = authors[Math.floor(Math.random() * authors.length)];
-      const randomImg = `https://picsum.photos/400/250?random=${Math.floor(Math.random() * 1000)}`;
-      addArticle({
-        id: Date.now(),
-        slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-"),
-        title: form.title,
-        category: form.category,
-        author: randomAuthor.name,
-        authorId: randomAuthor.id,
-        image: randomImg,
-        content: form.content,
-        date: form.date,
-        readTime: "5 min",
-      });
+      const slug = form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("content", form.content);
+      formData.append("slug", slug);
+      formData.append("author_id", randomAuthor.id);
+      formData.append("category_id", form.category_id);
+      if (form.image) {
+        formData.append("image", form.image);
+      }
+      await addArticle(formData);
     }
     handleClose();
   };
@@ -104,14 +130,20 @@ const DashboardPosts = () => {
             className="w-full border rounded px-3 py-2"
             required
           />
-          <input
-            name="category"
-            value={form.category}
+          <select
+            name="category_id"
+            value={form.category_id}
             onChange={handleChange}
-            placeholder="Catégorie"
             className="w-full border rounded px-3 py-2"
             required
-          />
+          >
+            <option value="">Sélectionnez une catégorie</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
           <textarea
             name="content"
             value={form.content}
@@ -135,6 +167,13 @@ const DashboardPosts = () => {
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
             required
+          />
+          <input
+            name="image"
+            type="file"
+            accept="image/*"
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
           />
           <div className="flex justify-end">
             <button
@@ -205,7 +244,7 @@ const DashboardPosts = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                          {article.category}
+                          {article.category.name}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-700">{article.author}</td>
